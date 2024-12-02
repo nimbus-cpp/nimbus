@@ -8,5 +8,5 @@ find_package(CLI11 REQUIRED)
 
 include_directories(include)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/*.cpp)
 target_link_libraries(${PROJECT_NAME} CLI11::CLI11)
