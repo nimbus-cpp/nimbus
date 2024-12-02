@@ -1,0 +1,6 @@
+[requires]
+cli11/2.4.2
+
+[generators]
+CMakeDeps
+CMakeToolchain
