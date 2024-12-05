@@ -1,5 +1,5 @@
 /**
- * @file init.cpp
+ * @file init.cppm
  * @brief This module handles the initialization of a new C++ project.
  *
  * The `init` module provides functionality for setting up the basic structure
@@ -22,8 +22,33 @@ module;
 
 export module init;
 
-namespace init {
+/**
+ * @namespace init::constants
+ * @brief Contains constants used during project initialization.
+ *
+ * This namespace encapsulates all the constants required for initializing
+ * a project, including directory names, configuration file names, and
+ * default content templates. These constants are designed to promote
+ * maintainability and consistency across the project initialization process.
+ */
+namespace init::constants {
+constexpr std::string_view SRC_DIR = "src";
+constexpr std::string_view INCLUDE_DIR = "include";
+constexpr std::string_view CURRENT_DIR = ".";
 
+constexpr std::string_view CONFIG_FILE = "nimbus.toml";
+constexpr std::string_view CONFIG_FILE_CONTENT =
+    "[project]\n"
+    "name = \"{}\"\n"
+    "version = \"0.1.0\"\n"
+    "authors = [\"Your Name <you@example.com>\"]\n\n"
+    "[build]\n"
+    "compiler = \"clang++\"\n"
+    "standard = \"c++20\"\n"
+    "build_type = \"Debug\"\n";
+} // namespace init::constants
+
+namespace init {
 /**
  * @brief Creates a project directory with the specified name.
  *
@@ -39,32 +64,24 @@ void createProjectDirectory(std::string_view projectName) {
  * @param path The base path where the directories will be created.
  */
 void createInternalDirectories(std::string_view path) {
-  std::filesystem::create_directory(std::format("{}/src", path));
-  std::filesystem::create_directory(std::format("{}/include", path));
+  std::filesystem::create_directory(
+      std::format("{}/{}", path, constants::SRC_DIR));
+  std::filesystem::create_directory(
+      std::format("{}/{}", path, constants::INCLUDE_DIR));
 }
 
 /**
- * @brief Creates a configuration file (`nimbus.toml`) for the project.
+ * @brief Creates a configuration file (`nimbus.toml`) for the project with
+ * default values being set.
  *
  * @param projectName The name of the project, included in the configuration.
  * @param path The path where the configuration file will be created.
  */
 void createConfigurationFile(std::string_view projectName,
                              std::string_view path) {
-  std::string tomlContent =
-      std::format("[project]\n"
-                  "name = \"{}\"\n"
-                  "version = \"0.1.0\"\n"
-                  "authors = [\"Your Name <you@example.com>\"]\n\n"
-                  "[build]\n"
-                  "compiler = \"clang++\"\n"
-                  "standard = \"c++20\"\n"
-                  "build_type = \"Debug\"\n",
-                  projectName);
-
-  std::ofstream file(std::format("{}/nimbus.toml", path));
+  std::ofstream file(std::format("{}/{}", path, constants::CONFIG_FILE));
   if (file.is_open()) {
-    file << tomlContent;
+    file << std::format(constants::CONFIG_FILE_CONTENT, projectName);
     file.close();
   }
 }
@@ -79,12 +96,11 @@ void createConfigurationFile(std::string_view projectName,
  * @param projectName The name of the project. If empty, the current directory
  * will be used.
  */
-export void handle(std::string_view projectName) {
+export void process(std::string_view projectName) {
   if (projectName.empty()) {
-    std::string_view CURRENT_DIRECTORY = ".";
-    createInternalDirectories(CURRENT_DIRECTORY);
+    createInternalDirectories(constants::CURRENT_DIR);
     createConfigurationFile(std::filesystem::current_path().filename().string(),
-                            CURRENT_DIRECTORY);
+                            constants::CURRENT_DIR);
   } else {
     createProjectDirectory(projectName);
     createInternalDirectories(projectName);
