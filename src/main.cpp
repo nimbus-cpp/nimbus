@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 
   std::string projectName;
   initCmd->add_option("project_name", projectName, "Name of the project");
-  initCmd->callback([&]() { init::handle(projectName); });
+  initCmd->callback([&]() { init::process(projectName); });
   // init command section -- end
 
   CLI11_PARSE(app, argc, argv);
