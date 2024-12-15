@@ -86,10 +86,12 @@ export void process() {
   }
 
   const std::string command =
-      std::format("{} -std={} src/*.cpp -o {}/{}", compiler.value(),
-                  standard.value(), constants::BUILD_DIR, projectName.value());
+      std::format("{} -std={} $(find src -type f \\( -name \"*.cpp\" -o -name "
+                  "\"*.c\" -o -name \"*.cxx\" \\)) -o {}/{}",
+                  compiler.value(), standard.value(), constants::BUILD_DIR,
+                  projectName.value());
 
-  if (auto result = std::system(command.c_str())) {
+  if (const auto result = std::system(command.c_str())) {
     std::cerr << "Error! Build failed with error code: " << result << std::endl;
     return;
   }
