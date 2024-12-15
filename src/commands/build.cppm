@@ -64,24 +64,24 @@ export void process() {
   const auto compiler =
       extractConfigValue(constants::SECTION_BUILD, constants::COMPILER);
   if (!compiler.has_value()) {
-    std::cerr << "Error! " << constants::COMPILER
-              << " not provided in nimbus.toml" << std::endl;
+    std::cerr << "Error! " << constants::COMPILER << " not provided in "
+              << constants::CONFIG_FILE << std::endl;
     return;
   }
 
   const auto standard =
       extractConfigValue(constants::SECTION_BUILD, constants::STANDARD);
   if (!standard.has_value()) {
-    std::cerr << "Error! " << constants::STANDARD
-              << " not provided in nimbus.toml" << std::endl;
+    std::cerr << "Error! " << constants::STANDARD << " not provided in "
+              << constants::CONFIG_FILE << std::endl;
     return;
   }
 
   const auto projectName =
       extractConfigValue(constants::SECTION_PROJECT, constants::NAME);
   if (!projectName.has_value()) {
-    std::cerr << "Error! " << constants::NAME << " not provided in nimbus.toml"
-              << std::endl;
+    std::cerr << "Error! " << constants::NAME << " not provided in "
+              << constants::CONFIG_FILE << std::endl;
     return;
   }
 
