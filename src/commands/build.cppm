@@ -14,6 +14,7 @@ export module build;
 /// Comment
 namespace build::constants {
 constexpr std::string_view BUILD_DIR = "build";
+constexpr std::string_view SRC_DIR = "src";
 constexpr std::string_view COMPILER = "compiler";
 constexpr std::string_view STANDARD = "standard";
 constexpr std::string_view NAME = "name";
@@ -85,14 +86,16 @@ export void process() {
     return;
   }
 
-  // char due to '\' constexpr violation
-  constexpr char findSubcommand[] =
-      "$(find src -type f \\( -name \"*.cpp\" -o -name \"*.c\" -o -name "
-      "\"*.cxx\" \\))";
+  constexpr std::string_view findSubcommand =
+      "$(find {} -type f \\( -name \"*.cpp\" -o "
+      "-name \"*.c\" -o -name \"*.cxx\" \\))";
 
   const std::string command =
       std::format("{} -std={} {} -o {}/{}", compiler.value(), standard.value(),
-                  findSubcommand, constants::BUILD_DIR, projectName.value());
+                  std::format(findSubcommand, constants::SRC_DIR),
+                  constants::BUILD_DIR, projectName.value());
+
+  std::cout << command << std::endl;
 
   if (const auto result = std::system(command.c_str())) {
     std::cerr << "Error! Build failed with error code: " << result << std::endl;
