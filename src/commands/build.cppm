@@ -22,6 +22,10 @@ namespace build {
 
 /// Comment
 void createBuildDirectory() {
+  if (std::filesystem::is_directory(constants::BUILD_DIR)) {
+    return;
+  }
+
   std::filesystem::create_directory(constants::BUILD_DIR);
 }
 
@@ -39,7 +43,6 @@ std::optional<std::string> extractConfigValue(std::string_view key) {
 
 /// Comment
 export void process() {
-  // TODO: Check if exists
   createBuildDirectory();
 
   const auto compiler = extractConfigValue(constants::COMPILER);
