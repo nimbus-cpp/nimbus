@@ -78,7 +78,7 @@ bool translateBuildType(std::string &buildType) noexcept {
 }
 
 /// Comment
-std::optional<std::string> constructBuildCommand() {
+std::optional<std::string> constructBuildCommand() noexcept {
   const auto compiler = extractConfigValue(toString(constants::Table::Build),
                                            toString(constants::Key::Compiler));
   if (!compiler.has_value()) {
