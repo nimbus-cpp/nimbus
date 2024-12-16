@@ -10,7 +10,7 @@ namespace constants {
 enum class Directory { Current, Include, Src, Build };
 
 /// Comment
-constexpr std::string_view toString(Directory dir) {
+constexpr std::string_view toString(Directory dir) noexcept {
   switch (dir) {
   case Directory::Current:
     return ".";

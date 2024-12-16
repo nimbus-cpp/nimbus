@@ -11,7 +11,7 @@ constexpr std::string_view ConfigFile = "nimbus.toml";
 
 // TODO: Automate using existing enum constants!
 /// Comment
-constexpr std::string_view getConfigFileDefaults() {
+constexpr std::string_view getConfigFileDefaults() noexcept {
   return "[project]\n"
          "name = \"{}\"\n"
          "version = \"0.1.0\"\n"
@@ -26,7 +26,7 @@ constexpr std::string_view getConfigFileDefaults() {
 enum class Table { Project, Build };
 
 /// Comment
-constexpr std::string_view toString(Table tbl) {
+constexpr std::string_view toString(Table tbl) noexcept {
   switch (tbl) {
   case Table::Project:
     return "project";
@@ -39,7 +39,7 @@ constexpr std::string_view toString(Table tbl) {
 enum class Key { Name, Version, Authors, Compiler, Standard, BuildType };
 
 /// Comment
-constexpr std::string_view toString(Key key) {
+constexpr std::string_view toString(Key key) noexcept {
   switch (key) {
   case Key::Name:
     return "name";

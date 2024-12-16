@@ -53,51 +53,88 @@ std::optional<std::string> extractConfigValue(std::string_view section,
 }
 
 /// Comment example tbl.key
-void logConfigErrorMessage(constants::Table tbl, constants::Key key) {
+void logConfigErrorMessage(constants::Table tbl, constants::Key key) noexcept {
   std::cerr << "Error! " << toString(tbl) << "." << toString(key)
             << " not provided in " << constants::ConfigFile << std::endl;
 }
 
 /// Comment
-export void process() {
-  createBuildDirectory();
+bool translateBuildType(std::string &buildType) noexcept {
+  if (buildType == "Debug") {
+    buildType = "-g -O0 -DDEBUG";
+    return true;
+  } else if (buildType == "Release") {
+    buildType = "-O2 -DRELEASE";
+    return true;
+  } else if (buildType == "RelWithDebInfo") {
+    buildType = "-g -O2 -DRELWITHDEBINFO";
+    return true;
+  } else if (buildType == "MinSizeRel") {
+    buildType = "-Os -DMINSIZEREL";
+    return true;
+  } else {
+    return false;
+  }
+}
 
+/// Comment
+std::optional<std::string> constructBuildCommand() {
   const auto compiler = extractConfigValue(toString(constants::Table::Build),
                                            toString(constants::Key::Compiler));
   if (!compiler.has_value()) {
     logConfigErrorMessage(constants::Table::Build, constants::Key::Compiler);
-    return;
+    return std::nullopt;
   }
 
   const auto standard = extractConfigValue(toString(constants::Table::Build),
                                            toString(constants::Key::Standard));
   if (!standard.has_value()) {
     logConfigErrorMessage(constants::Table::Build, constants::Key::Standard);
-    return;
+    return std::nullopt;
+  }
+
+  auto buildType = extractConfigValue(toString(constants::Table::Build),
+                                      toString(constants::Key::BuildType));
+  if (!buildType.has_value() || !translateBuildType(buildType.value())) {
+    logConfigErrorMessage(constants::Table::Build, constants::Key::BuildType);
+    return std::nullopt;
   }
 
   const auto projectName = extractConfigValue(
       toString(constants::Table::Project), toString(constants::Key::Name));
   if (!projectName.has_value()) {
     logConfigErrorMessage(constants::Table::Project, constants::Key::Name);
-    return;
+    return std::nullopt;
   }
 
   constexpr std::string_view findSubcommand =
       "$(find {} -type f \\( -name \"*.cpp\" -o "
       "-name \"*.c\" -o -name \"*.cxx\" \\))";
 
-  const std::string command = std::format(
-      "{} -std={} {} -o {}/{}", compiler.value(), standard.value(),
+  return std::format(
+      "{} -std={} {} {} -o {}/{}", compiler.value(), standard.value(),
       std::format(findSubcommand, toString(constants::Directory::Src)),
-      toString(constants::Directory::Build), projectName.value());
+      buildType.value(), toString(constants::Directory::Build),
+      projectName.value());
+}
 
+/// Comment
+void executeCommand(const std::string &command) {
   if (const auto result = std::system(command.c_str())) {
     std::cerr << "Error! Build failed with error code: " << result << std::endl;
     return;
   }
 
-  std::cout << "Build finished!" << std::endl;
+  std::cout << "Build process finished!" << std::endl;
+}
+
+/// Comment
+export void process() {
+  createBuildDirectory();
+
+  auto command = constructBuildCommand();
+  if (command.has_value())
+    executeCommand(command.value());
 }
 
 } // namespace build
