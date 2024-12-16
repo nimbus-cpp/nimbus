@@ -15,38 +15,17 @@
 
 module;
 
+// std
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <string_view>
 
+// internal
+#include "../../include/constants/config_toml.hpp"
+#include "../../include/constants/directory.hpp"
+
 export module init;
-
-/**
- * @namespace init::constants
- * @brief Contains constants used during project initialization.
- *
- * This namespace encapsulates all the constants required for initializing
- * a project, including directory names, configuration file names, and
- * default content templates. These constants are designed to promote
- * maintainability and consistency across the project initialization process.
- */
-namespace init::constants {
-constexpr std::string_view SRC_DIR = "src";
-constexpr std::string_view INCLUDE_DIR = "include";
-constexpr std::string_view CURRENT_DIR = ".";
-
-constexpr std::string_view CONFIG_FILE = "nimbus.toml";
-constexpr std::string_view CONFIG_FILE_CONTENT =
-    "[project]\n"
-    "name = \"{}\"\n"
-    "version = \"0.1.0\"\n"
-    "authors = [\"Your Name <you@example.com>\"]\n\n"
-    "[build]\n"
-    "compiler = \"clang++\"\n"
-    "standard = \"c++20\"\n"
-    "build_type = \"Debug\"\n";
-} // namespace init::constants
 
 namespace init {
 /**
@@ -64,10 +43,15 @@ void createProjectDirectory(std::string_view projectName) {
  * @param path The base path where the directories will be created.
  */
 void createInternalDirectories(std::string_view path) {
-  std::filesystem::create_directory(
-      std::format("{}/{}", path, constants::SRC_DIR));
-  std::filesystem::create_directory(
-      std::format("{}/{}", path, constants::INCLUDE_DIR));
+  if (!std::filesystem::is_directory(toString(constants::Directory::Src))) {
+    std::filesystem::create_directory(
+        std::format("{}/{}", path, toString(constants::Directory::Src)));
+  }
+
+  if (!std::filesystem::is_directory(toString(constants::Directory::Include))) {
+    std::filesystem::create_directory(
+        std::format("{}/{}", path, toString(constants::Directory::Include)));
+  }
 }
 
 /**
@@ -79,9 +63,9 @@ void createInternalDirectories(std::string_view path) {
  */
 void createConfigurationFile(std::string_view projectName,
                              std::string_view path) {
-  std::ofstream file(std::format("{}/{}", path, constants::CONFIG_FILE));
+  std::ofstream file(std::format("{}/{}", path, constants::ConfigFile));
   if (file.is_open()) {
-    file << std::format(constants::CONFIG_FILE_CONTENT, projectName);
+    file << std::format(constants::getConfigFileDefaults(), projectName);
     file.close();
   }
 }
@@ -98,9 +82,9 @@ void createConfigurationFile(std::string_view projectName,
  */
 export void process(std::string_view projectName) {
   if (projectName.empty()) {
-    createInternalDirectories(constants::CURRENT_DIR);
+    createInternalDirectories(toString(constants::Directory::Current));
     createConfigurationFile(std::filesystem::current_path().filename().string(),
-                            constants::CURRENT_DIR);
+                            toString(constants::Directory::Current));
   } else {
     createProjectDirectory(projectName);
     createInternalDirectories(projectName);
